@@ -1,4 +1,20 @@
-node_modules
+# Root node modules
+node_modules/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Backend
+backend/node_modules/
+backend/.env
+
+# Environment files
 .env
-frontend/node_modules
-backend/node_modules
+
+# Build folders
+dist/
+
+# Logs
+*.log

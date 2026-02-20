@@ -1,35 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import AddDonation from "./pages/AddDonation";
+import AddRequest from "./pages/AddRequest";
+import MatchPage from "./pages/MatchPage";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <nav className="bg-green-600 text-white px-6 py-3 flex gap-6 text-sm font-medium">
+        <span className="text-lg font-bold mr-4">🥗 FoodShare</span>
+        <NavLink to="/" className={({ isActive }) => isActive ? "underline" : ""}>Dashboard</NavLink>
+        <NavLink to="/add-donation" className={({ isActive }) => isActive ? "underline" : ""}>Add Donation</NavLink>
+        <NavLink to="/add-request" className={({ isActive }) => isActive ? "underline" : ""}>Add Request</NavLink>
+        <NavLink to="/matches" className={({ isActive }) => isActive ? "underline" : ""}>Matches</NavLink>
+      </nav>
+      <div className="max-w-4xl mx-auto p-6">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/add-donation" element={<AddDonation />} />
+          <Route path="/add-request" element={<AddRequest />} />
+          <Route path="/matches" element={<MatchPage />} />
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </BrowserRouter>
+  );
 }
-
-export default App
