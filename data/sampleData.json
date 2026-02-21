@@ -1,0 +1,67 @@
+{
+  "donations": [
+    {
+      "donorName": "ABC Hotel",
+      "foodType": "veg",
+      "quantity": 50,
+      "location": "chennai",
+      "expiryTime": "4 hours",
+      "contactNumber": "9876543210"
+    },
+    {
+      "donorName": "Royal Catering",
+      "foodType": "VEGETARIAN",
+      "quantity": 30,
+      "location": " Chennai ",
+      "expiryTime": "3 hours",
+      "contactNumber": "9123456789"
+    },
+    {
+      "donorName": "Spice Villa",
+      "foodType": "nonveg",
+      "quantity": 40,
+      "location": "madurai",
+      "expiryTime": "5 hours",
+      "contactNumber": "9988776655"
+    },
+    {
+      "donorName": "Green Leaf",
+      "foodType": "Non-Veg",
+      "quantity": 25,
+      "location": "coimbatore",
+      "expiryTime": "2 hours",
+      "contactNumber": "9876501234"
+    },
+    {
+      "donorName": "City Diner",
+      "foodType": "veg",
+      "quantity": 60,
+      "location": "chennai",
+      "expiryTime": "6 hours",
+      "contactNumber": "9012345678"
+    }
+  ],
+  "requests": [
+    {
+      "organizationName": "Hope NGO",
+      "requiredFoodType": "VEGETARIAN",
+      "quantityNeeded": 30,
+      "location": "Chennai ",
+      "contactNumber": "9999999999"
+    },
+    {
+      "organizationName": "Helping Hands",
+      "requiredFoodType": "veg",
+      "quantityNeeded": 20,
+      "location": "madurai",
+      "contactNumber": "8888888888"
+    },
+    {
+      "organizationName": "Care Foundation",
+      "requiredFoodType": "non-veg",
+      "quantityNeeded": 25,
+      "location": "coimbatore",
+      "contactNumber": "7777777777"
+    }
+  ]
+}

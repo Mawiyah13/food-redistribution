@@ -16,7 +16,7 @@ exports.getMatches = async (req, res) => {
           donation.quantity >= request.quantityNeeded
         ) {
           matches.push({ donation, request });
-          break; // one donation matched to one request
+          break; 
         }
       }
     }

@@ -12,6 +12,7 @@ app.use(express.json());
 app.use("/api/donations", require("./routes/donationRoutes"));
 app.use("/api/requests", require("./routes/requestRoutes"));
 app.use("/api/match", require("./routes/matchRoutes"));
+app.use("/api/stats", require("./routes/statsRoutes"));
 
 app.use((req, res) => res.status(404).json({ error: "Route not found" }));
 
