@@ -4,6 +4,7 @@ const donationSchema = new mongoose.Schema({
   donorName: { type: String, required: true },
   foodType: { type: String, required: true },
   quantity: { type: Number, required: true },
+  remainingQuantity: { type: Number, required: true },
   location: { type: String, required: true },
   expiryTime: { type: Date, required: true },
   contactNumber: { type: String, required: true },

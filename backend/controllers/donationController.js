@@ -4,17 +4,17 @@ const { validateDonation } = require("../utils/dataValidation");
 
 exports.addDonation = async (req, res) => {
   try {
-    // 1️⃣ Clean incoming data
     const cleanedData = cleanDonation(req.body);
 
-    // 2️⃣ Validate cleaned data
     const validationError = validateDonation(cleanedData);
     if (validationError) {
       return res.status(400).json({ message: validationError });
     }
 
-    // 3️⃣ Save to database
-    const donation = await Donation.create(cleanedData);
+    const donation = await Donation.create({
+      ...cleanedData,
+      remainingQuantity: cleanedData.quantity
+    });
 
     res.status(201).json({
       message: "Donation added successfully",

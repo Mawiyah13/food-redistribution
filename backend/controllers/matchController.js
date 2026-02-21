@@ -10,18 +10,38 @@ exports.getMatches = async (req, res) => {
 
     for (const request of requests) {
       for (const donation of donations) {
+
         if (
           donation.location.toLowerCase() === request.location.toLowerCase() &&
           donation.foodType.toLowerCase() === request.requiredFoodType.toLowerCase() &&
-          donation.quantity >= request.quantityNeeded
+          donation.remainingQuantity >= request.quantityNeeded &&
+          donation.expiryTime > new Date()
         ) {
-          matches.push({ donation, request });
-          break; 
+
+          donation.remainingQuantity -= request.quantityNeeded;
+
+          if (donation.remainingQuantity === 0) {
+            donation.status = "completed";
+          }
+
+          request.status = "fulfilled";
+
+          await donation.save();
+          await request.save();
+
+          matches.push({
+            donation,
+            request,
+            matchedQuantity: request.quantityNeeded
+          });
+
+          break;
         }
       }
     }
 
     res.json(matches);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
