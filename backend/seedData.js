@@ -16,17 +16,27 @@ async function seedDatabase() {
     const dataPath = path.join(__dirname, "../data/sampleData.json");
     const rawData = fs.readFileSync(dataPath, "utf-8");
     const { donations, requests } = JSON.parse(rawData);
+
     await Donation.deleteMany();
     await Request.deleteMany();
-    const cleanedDonations = donations.map(d => cleanDonation(d));
+
+    const cleanedDonations = donations.map(d => {
+      const cleaned = cleanDonation(d);
+
+      return {
+        ...cleaned,
+        remainingQuantity: cleaned.quantity 
+      };
+    });
+
     const cleanedRequests = requests.map(r => cleanRequest(r));
 
     await Donation.insertMany(cleanedDonations);
     await Request.insertMany(cleanedRequests);
 
     console.log("✅ Database seeded successfully!");
+    process.exit(0);
 
-    process.exit();
   } catch (error) {
     console.error("❌ Error seeding database:", error);
     process.exit(1);
