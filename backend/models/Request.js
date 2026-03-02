@@ -6,7 +6,13 @@ const requestSchema = new mongoose.Schema({
   quantityNeeded: { type: Number, required: true },
   location: { type: String, required: true },
   contactNumber: { type: String, required: true },
-  status: { type: String, default: "pending" },
+  requiredBy: { type: Date, required: true },
+  status: {
+    type: String,
+    enum: ["pending", "fulfilled", "failed"],
+    default: "pending",
+  },
+  ngo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
 });
 

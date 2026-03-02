@@ -7,9 +7,9 @@ function validateDonation(data) {
     return "Quantity must be greater than 0";
   }
 
-  if (data.contactNumber.length !== 10) {
-    return "Contact number must be 10 digits";
-  }
+  if (String(data.contactNumber).length !== 10) {
+  return "Contact number must be 10 digits";
+}
 
   return null;
 }
@@ -23,9 +23,9 @@ function validateRequest(data) {
     return "Quantity needed must be greater than 0";
   }
 
-  if (data.contactNumber.length !== 10) {
-    return "Contact number must be 10 digits";
-  }
+  if (String(data.contactNumber).length !== 10) {
+  return "Contact number must be 10 digits";
+}
 
   return null;
 }

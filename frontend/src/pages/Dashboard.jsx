@@ -1,65 +1,103 @@
 import { useEffect, useState } from "react";
-import { getDonations, getRequests, getMatches } from "../services/api";
+import { getDashboard, getMyDonations, getMyRequests } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import StatusBadge from "../components/StatusBadge";
+import SearchFilter from "../components/SearchFilter";
+
+const StatCard = ({ label, value, color }) => (
+  <div className={`rounded-xl p-5 text-center ${color}`}>
+    <div className="text-3xl font-bold">{value}</div>
+    <div className="text-sm mt-1 font-medium">{label}</div>
+  </div>
+);
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({ donations: 0, requests: 0, matches: 0 });
-  const [donations, setDonations] = useState([]);
-  const [requests, setRequests] = useState([]);
+  const { user } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({});
 
   useEffect(() => {
-    Promise.all([getDonations(), getRequests(), getMatches()])
-      .then(([d, r, m]) => {
-        setDonations(d.data);
-        setRequests(r.data);
-        setStats({ donations: d.data.length, requests: r.data.length, matches: m.data.length });
-      })
-      .finally(() => setLoading(false));
+    getDashboard().then((res) => setStats(res.data)).catch(() => {});
   }, []);
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  useEffect(() => {
+    setLoading(true);
+    const fn = user.role === "donor" ? getMyDonations : getMyRequests;
+    fn(filters)
+      .then((res) => setItems(res.data))
+      .finally(() => setLoading(false));
+  }, [filters]);
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6 text-green-700">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6 text-green-700">
+        {user.role === "donor" ? "Donor Dashboard" : "NGO Dashboard"}
+      </h1>
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        {[
-          { label: "Total Donations", value: stats.donations, color: "bg-green-100 text-green-800" },
-          { label: "Total Requests", value: stats.requests, color: "bg-blue-100 text-blue-800" },
-          { label: "Matched Pairs", value: stats.matches, color: "bg-yellow-100 text-yellow-800" },
-        ].map((s) => (
-          <div key={s.label} className={`rounded-xl p-5 text-center font-semibold ${s.color}`}>
-            <div className="text-3xl font-bold">{s.value}</div>
-            <div className="text-sm mt-1">{s.label}</div>
-          </div>
-        ))}
-      </div>
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {user.role === "donor" ? (
+            <>
+              <StatCard label="Total Donations" value={stats.totalDonations} color="bg-green-100 text-green-800" />
+              <StatCard label="Active" value={stats.activeDonations} color="bg-blue-100 text-blue-800" />
+              <StatCard label="Completed" value={stats.completedDonations} color="bg-purple-100 text-purple-800" />
+              <StatCard label="Failed" value={stats.failedDonations} color="bg-red-100 text-red-800" />
+              <StatCard label="Pending Matches" value={stats.pendingMatches} color="bg-yellow-100 text-yellow-800" />
+              <StatCard label="Completed Matches" value={stats.completedMatches} color="bg-green-100 text-green-800" />
+              <StatCard label="Cancelled Matches" value={stats.cancelledMatches} color="bg-gray-100 text-gray-700" />
+            </>
+          ) : (
+            <>
+              <StatCard label="Total Requests" value={stats.totalRequests} color="bg-blue-100 text-blue-800" />
+              <StatCard label="Pending" value={stats.pendingRequests} color="bg-yellow-100 text-yellow-800" />
+              <StatCard label="Fulfilled" value={stats.fulfilledRequests} color="bg-green-100 text-green-800" />
+              <StatCard label="Failed" value={stats.failedRequests} color="bg-red-100 text-red-800" />
+              <StatCard label="Pending Matches" value={stats.pendingMatches} color="bg-yellow-100 text-yellow-800" />
+              <StatCard label="Completed Matches" value={stats.completedMatches} color="bg-green-100 text-green-800" />
+            </>
+          )}
+        </div>
+      )}
 
-      <div className="grid grid-cols-2 gap-6">
-        <div>
-          <h2 className="font-semibold text-lg mb-2 text-green-700">Recent Donations</h2>
-          {donations.length === 0 && <p className="text-gray-500 text-sm">No donations yet.</p>}
-          {donations.slice(0, 5).map((d) => (
-            <div key={d._id} className="bg-white rounded-lg p-3 mb-2 shadow-sm border">
-              <p className="font-medium">{d.donorName}</p>
-              <p className="text-sm text-gray-600">{d.foodType} · {d.quantity} units · {d.location}</p>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${d.status === "available" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>{d.status}</span>
+      <SearchFilter filters={filters} onChange={setFilters} />
+
+      <h2 className="font-semibold text-lg mb-3 text-gray-700">
+        {user.role === "donor" ? "My Donations" : "My Requests"}
+      </h2>
+
+      {loading ? (
+        <p className="text-gray-500">Loading...</p>
+      ) : items.length === 0 ? (
+        <p className="text-gray-500 text-sm">No records found.</p>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item) => (
+            <div key={item._id} className="bg-white rounded-xl p-4 shadow-sm border flex justify-between items-start">
+              <div>
+                <p className="font-semibold text-gray-800">
+                  {user.role === "donor" ? item.donorName : item.organizationName}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {user.role === "donor"
+                    ? `${item.foodType} · ${item.remainingQuantity}/${item.quantity} remaining · ${item.location}`
+                    : `${item.requiredFoodType} · ${item.quantityNeeded} units · ${item.location}`}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {user.role === "donor"
+                    ? `Expires: ${new Date(item.expiryTime).toLocaleString()}`
+                    : `Required by: ${new Date(item.requiredBy).toLocaleString()}`}
+                </p>
+                <p className="text-xs text-gray-400">
+                  Added: {new Date(item.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+              <StatusBadge status={item.status} />
             </div>
           ))}
         </div>
-        <div>
-          <h2 className="font-semibold text-lg mb-2 text-blue-700">Recent Requests</h2>
-          {requests.length === 0 && <p className="text-gray-500 text-sm">No requests yet.</p>}
-          {requests.slice(0, 5).map((r) => (
-            <div key={r._id} className="bg-white rounded-lg p-3 mb-2 shadow-sm border">
-              <p className="font-medium">{r.organizationName}</p>
-              <p className="text-sm text-gray-600">{r.requiredFoodType} · {r.quantityNeeded} units · {r.location}</p>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${r.status === "pending" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-500"}`}>{r.status}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

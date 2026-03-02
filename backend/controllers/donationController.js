@@ -1,36 +1,42 @@
 const Donation = require("../models/Donation");
-const { cleanDonation } = require("../utils/dataCleaner");
-const { validateDonation } = require("../utils/dataValidation");
 
-exports.addDonation = async (req, res) => {
+const addDonation = async (req, res) => {
   try {
-    const cleanedData = cleanDonation(req.body);
-
-    const validationError = validateDonation(cleanedData);
-    if (validationError) {
-      return res.status(400).json({ message: validationError });
-    }
-
     const donation = await Donation.create({
-      ...cleanedData,
-      remainingQuantity: cleanedData.quantity
+      ...req.body,
+      donor: req.user._id,
+      remainingQuantity: req.body.quantity,
     });
-
-    res.status(201).json({
-      message: "Donation added successfully",
-      data: donation
-    });
-
+    res.status(201).json({ message: "Donation added successfully", data: donation });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-exports.getDonations = async (req, res) => {
+const getDonations = async (req, res) => {
   try {
-    const donations = await Donation.find().sort({ createdAt: -1 });
+    const filter = {};
+    if (req.query.location) filter.location = new RegExp(req.query.location, "i");
+    if (req.query.foodType) filter.foodType = new RegExp(req.query.foodType, "i");
+    if (req.query.status) filter.status = req.query.status;
+    const donations = await Donation.find(filter).sort({ createdAt: -1 });
     res.json(donations);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
+const getMyDonations = async (req, res) => {
+  try {
+    const filter = { donor: req.user._id };
+    if (req.query.status) filter.status = req.query.status;
+    if (req.query.foodType) filter.foodType = new RegExp(req.query.foodType, "i");
+    if (req.query.location) filter.location = new RegExp(req.query.location, "i");
+    const donations = await Donation.find(filter).sort({ createdAt: -1 });
+    res.json(donations);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { addDonation, getDonations, getMyDonations };
